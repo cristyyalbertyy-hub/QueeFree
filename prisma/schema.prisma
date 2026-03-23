@@ -1,0 +1,132 @@
+// Schema MVP: um projeto, vários países (telefone em E.164)
+// https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum OrderStatus {
+  pending
+  accepted
+  preparing
+  ready
+  picked_up
+  cancelled
+}
+
+model Venue {
+  id        String   @id @default(cuid())
+  name      String
+  slug      String   @unique
+  timezone  String   @default("UTC")
+  currency  String   @default("EUR") // ISO 4217
+  createdAt DateTime @default(now())
+
+  menuCategories MenuCategory[]
+  menuItems      MenuItem[]
+  customers      Customer[]
+  sessions       Session[]
+  orders         Order[]
+}
+
+model MenuCategory {
+  id        String   @id @default(cuid())
+  venueId   String
+  name      String
+  sortOrder Int      @default(0)
+  venue     Venue    @relation(fields: [venueId], references: [id], onDelete: Cascade)
+  items     MenuItem[]
+
+  @@index([venueId])
+}
+
+model MenuItem {
+  id          String   @id @default(cuid())
+  venueId     String
+  categoryId  String
+  name        String
+  description String?
+  /// URL da foto (https… ou caminho /public, ex.: /menu/agua.jpg)
+  imageUrl    String?
+  priceCents  Int
+  isAvailable Boolean  @default(true)
+  sortOrder   Int      @default(0)
+
+  venue    Venue        @relation(fields: [venueId], references: [id], onDelete: Cascade)
+  category MenuCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  lines    OrderItem[]
+
+  @@index([venueId])
+  @@index([categoryId])
+}
+
+model Customer {
+  id        String   @id @default(cuid())
+  venueId   String
+  phoneE164 String // internacional: +XXXXXXXXXXX
+  createdAt DateTime @default(now())
+
+  venue    Venue     @relation(fields: [venueId], references: [id], onDelete: Cascade)
+  sessions Session[]
+  orders   Order[]
+
+  @@unique([venueId, phoneE164])
+  @@index([phoneE164])
+}
+
+model Session {
+  id         String   @id @default(cuid())
+  venueId    String
+  customerId String
+  token      String   @unique
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+
+  venue    Venue    @relation(fields: [venueId], references: [id], onDelete: Cascade)
+  customer Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  orders   Order[]
+
+  @@index([venueId])
+  @@index([customerId])
+}
+
+model Order {
+  id          String      @id @default(cuid())
+  venueId     String
+  customerId  String
+  sessionId   String
+  publicCode  String
+  status      OrderStatus @default(pending)
+  totalCents  Int
+  notes       String?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  venue    Venue       @relation(fields: [venueId], references: [id], onDelete: Cascade)
+  customer Customer    @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  session  Session     @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  items    OrderItem[]
+
+  @@unique([venueId, publicCode])
+  @@index([venueId, status])
+  @@index([sessionId])
+}
+
+model OrderItem {
+  id           String @id @default(cuid())
+  orderId      String
+  menuItemId   String
+  quantity     Int
+  unitPriceCents Int
+  lineTotalCents Int
+
+  order    Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  menuItem MenuItem @relation(fields: [menuItemId], references: [id], onDelete: Restrict)
+
+  @@index([orderId])
+}

@@ -5,7 +5,9 @@ export default function MenuPage() {
   return (
     <Suspense
       fallback={
-        <p className="p-8 text-center text-zinc-400">A carregar menu…</p>
+        <p className="p-8 text-center text-zinc-500" aria-live="polite">
+          …
+        </p>
       }
     >
       <MenuView />

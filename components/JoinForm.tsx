@@ -29,7 +29,7 @@ export function JoinForm() {
         menuUrl?: string;
       };
       if (!res.ok) {
-        setError(data.error ?? "Erro ao registar");
+        setError(data.error ?? "Erro");
         return;
       }
       if (data.menuUrl) {
@@ -40,7 +40,7 @@ export function JoinForm() {
         router.push(`/menu?token=${encodeURIComponent(data.token)}`);
       }
     } catch {
-      setError("Falha de rede. Tenta de novo.");
+      setError("Rede");
     } finally {
       setLoading(false);
     }
@@ -51,12 +51,13 @@ export function JoinForm() {
       onSubmit={onSubmit}
       className="flex flex-col gap-4 rounded-2xl border border-zinc-800 bg-zinc-900/50 p-6"
     >
-      <label className="flex flex-col gap-1 text-sm">
-        <span className="text-zinc-400">País (para números sem +)</span>
+      <label className="flex flex-col gap-2">
+        <span className="sr-only">País</span>
         <select
           value={country}
           onChange={(e) => setCountry(e.target.value)}
-          className="rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2 text-white"
+          aria-label="País do número de telefone"
+          className="rounded-xl border border-zinc-700 bg-zinc-950 px-4 py-3 text-white"
         >
           {COUNTRY_OPTIONS.map((c) => (
             <option key={c.code} value={c.code}>
@@ -66,32 +67,34 @@ export function JoinForm() {
         </select>
       </label>
 
-      <label className="flex flex-col gap-1 text-sm">
-        <span className="text-zinc-400">Telemóvel</span>
+      <label className="flex flex-col gap-2">
+        <span className="sr-only">Telemóvel</span>
         <input
           type="tel"
           inputMode="tel"
           autoComplete="tel"
-          placeholder="+351 912 345 678 ou nacional"
+          placeholder="Telemóvel"
           value={phone}
           onChange={(e) => setPhone(e.target.value)}
           required
-          className="rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2 text-white placeholder:text-zinc-600"
+          aria-label="Número de telemóvel"
+          className="rounded-xl border border-zinc-700 bg-zinc-950 px-4 py-3 text-white placeholder:text-zinc-600"
         />
       </label>
 
-      {error && (
-        <p className="text-sm text-red-400" role="alert">
+      {error ? (
+        <p className="text-center text-sm text-red-400" role="alert">
           {error}
         </p>
-      )}
+      ) : null}
 
       <button
         type="submit"
         disabled={loading}
-        className="rounded-lg bg-emerald-600 px-4 py-3 font-medium text-white transition hover:bg-emerald-500 disabled:opacity-50"
+        aria-label={loading ? "A enviar" : "Continuar"}
+        className="flex min-h-12 items-center justify-center rounded-xl bg-emerald-600 text-lg font-semibold text-white transition hover:bg-emerald-500 disabled:opacity-50"
       >
-        {loading ? "A enviar…" : "Continuar"}
+        {loading ? "…" : "→"}
       </button>
     </form>
   );

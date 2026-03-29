@@ -81,7 +81,7 @@ Depois de login em `/staff`, abre **Editar menu** ou vai a **`/staff/menu`**.
 
 Se definires **`BLOB_READ_WRITE_TOKEN`** no ambiente (Vercel Dashboard → **Storage** → **Blob** → criar store e ligar ao projeto, ou `vercel env pull`), os uploads passam a ir para a **cloud** e a API devolve uma URL `https://….public.blob.vercel-storage.com/...` — **persistente** nos deploys.
 
-- **Sem** esse token: continua a gravar em `public/menu/` (ideal para **`npm run dev`** no PC).
+- **Sem** esse token: continua a gravar em `public/menu/123` (ideal para **`npm run dev`** no PC).
 - O pacote **`@vercel/blob`** já está nas dependências; em produção na Vercel o token costuma ser injectado automaticamente quando o Blob está ligado ao projeto (podes ainda copiar o token para `.env` local para testes).
 
 ### Produção sem Blob

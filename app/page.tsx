@@ -3,27 +3,24 @@ import { JoinForm } from "@/components/JoinForm";
 
 export default function HomePage() {
   return (
-    <main className="mx-auto flex min-h-screen max-w-lg flex-col gap-8 px-4 py-12">
-      <div>
-        <p className="text-sm uppercase tracking-widest text-zinc-500">
-          Evento / bar
-        </p>
-        <h1 className="mt-2 text-3xl font-semibold text-white">
-          Pedidos sem fila
-        </h1>
-        <p className="mt-3 text-zinc-400">
-          Indica o teu número (qualquer país). Recebes no WhatsApp o link do
-          menu e o código do pedido — avisamos quando estiver pronto.
-        </p>
+    <main className="relative mx-auto flex min-h-screen max-w-lg flex-col justify-center gap-6 px-4 py-10">
+      <Link
+        href="/staff/login"
+        className="absolute left-4 top-4 text-zinc-600 opacity-70 transition hover:text-zinc-400 hover:opacity-100"
+        aria-label="Área staff"
+      >
+        ⚙
+      </Link>
+      <div className="flex flex-col items-center gap-2">
+        <div
+          className="flex h-16 w-16 items-center justify-center rounded-2xl border border-emerald-500/30 bg-emerald-500/10 text-3xl"
+          aria-hidden
+        >
+          ☕
+        </div>
       </div>
 
       <JoinForm />
-
-      <p className="text-center text-sm text-zinc-500">
-        <Link href="/staff" className="underline hover:text-zinc-300">
-          Área bar / cozinha
-        </Link>
-      </p>
     </main>
   );
 }

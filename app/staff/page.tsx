@@ -74,7 +74,7 @@ export default function StaffPage() {
     }
     if (!res.ok) {
       const data = (await res.json()) as { error?: string };
-      setError(data.error ?? "Erro ao atualizar");
+      setError(data.error ?? "Erro");
       return;
     }
     setError(null);
@@ -91,38 +91,40 @@ export default function StaffPage() {
   }
 
   return (
-    <main className="mx-auto max-w-3xl px-4 py-10">
-      <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-semibold text-white">Bar / cozinha</h1>
-          <p className="text-sm text-zinc-500">{currency}</p>
-        </div>
+    <main className="mx-auto max-w-3xl px-4 py-8">
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+        <p className="text-sm tabular-nums text-zinc-500">{currency}</p>
         <div className="flex flex-wrap gap-2">
           <Link
             href="/staff/menu"
-            className="rounded-lg border border-emerald-700/50 bg-emerald-950/30 px-3 py-2 text-sm font-medium text-emerald-300 hover:bg-emerald-950/50"
+            className="inline-flex h-11 w-11 items-center justify-center rounded-lg border border-emerald-700/50 bg-emerald-950/30 text-lg text-emerald-300 hover:bg-emerald-950/50"
+            aria-label="Editar menu"
+            title="Menu"
           >
-            Editar menu
+            ☰
           </Link>
           <button
             type="button"
             onClick={() => void load()}
-            className="rounded-lg border border-zinc-700 px-3 py-2 text-sm text-zinc-300 hover:bg-zinc-800"
+            className="inline-flex h-11 w-11 items-center justify-center rounded-lg border border-zinc-700 text-xl text-zinc-300 hover:bg-zinc-800"
+            aria-label="Atualizar lista"
           >
-            Atualizar
+            ↻
           </button>
           <button
             type="button"
             onClick={() => void logout()}
-            className="rounded-lg border border-zinc-700 px-3 py-2 text-sm text-zinc-300 hover:bg-zinc-800"
+            className="inline-flex h-11 w-11 items-center justify-center rounded-lg border border-zinc-700 text-xl text-zinc-300 hover:bg-zinc-800"
+            aria-label="Sair"
           >
-            Sair
+            ⎋
           </button>
           <Link
             href="/"
-            className="rounded-lg border border-zinc-700 px-3 py-2 text-sm text-zinc-300 hover:bg-zinc-800"
+            className="inline-flex h-11 w-11 items-center justify-center rounded-lg border border-zinc-700 text-xl text-zinc-300 hover:bg-zinc-800"
+            aria-label="Entrada cliente"
           >
-            Entrada
+            ⌂
           </Link>
         </div>
       </div>
@@ -134,7 +136,9 @@ export default function StaffPage() {
       )}
 
       {loading && orders.length === 0 ? (
-        <p className="text-zinc-500">A carregar…</p>
+        <p className="text-zinc-500" aria-live="polite">
+          …
+        </p>
       ) : (
         <ul className="space-y-4">
           {orders.map((o) => (
@@ -148,11 +152,11 @@ export default function StaffPage() {
                     {o.publicCode}
                   </p>
                   <p className="text-xs text-zinc-500">{o.phoneE164}</p>
-                  <p className="mt-1 text-sm text-zinc-400">
+                  <p className="mt-1 text-sm tabular-nums text-zinc-400">
                     {(o.totalCents / 100).toFixed(2)} {currency} · {o.status}
                   </p>
                   {o.notes && (
-                    <p className="mt-2 text-sm text-amber-200/90">Nota: {o.notes}</p>
+                    <p className="mt-2 text-sm text-amber-200/90">{o.notes}</p>
                   )}
                   <ul className="mt-2 text-sm text-zinc-300">
                     {o.items.map((it, i) => (
@@ -163,7 +167,7 @@ export default function StaffPage() {
                   </ul>
                 </div>
                 <div className="flex flex-col gap-1">
-                  <label className="text-xs text-zinc-500">Estado</label>
+                  <label className="sr-only">Estado</label>
                   <select
                     value={o.status}
                     onChange={(e) =>

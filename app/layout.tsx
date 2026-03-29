@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Outfit } from "next/font/google";
+import { InstructionsFrame } from "@/components/instructions-frame";
 import "./globals.css";
 
 const outfit = Outfit({
@@ -23,7 +24,7 @@ export default function RootLayout({
       <body
         className={`${outfit.className} min-h-screen bg-[#07090d] antialiased`}
       >
-        {children}
+        <InstructionsFrame>{children}</InstructionsFrame>
       </body>
     </html>
   );

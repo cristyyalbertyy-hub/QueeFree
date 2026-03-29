@@ -97,6 +97,11 @@ export function MenuView() {
     [cart]
   );
 
+  const flatItems = useMemo(() => {
+    if (!menu) return [];
+    return menu.categories.flatMap((cat) => cat.items);
+  }, [menu]);
+
   function addQty(line: CartLine, delta: number) {
     const nextQty = line.quantity + delta;
     if (nextQty <= 0) {
@@ -226,13 +231,16 @@ export function MenuView() {
 
   if (!token) {
     return (
-      <main className="menu-page-bg min-h-screen px-4 py-16 text-center">
-        <p className="text-zinc-400">Link inválido. Começa pela entrada.</p>
+      <main className="menu-page-bg flex min-h-screen flex-col items-center justify-center px-4 py-16 text-center">
+        <p className="mb-4 text-sm text-zinc-500" role="alert">
+          Link inválido
+        </p>
         <Link
           href="/"
-          className="mt-6 inline-flex items-center justify-center rounded-full border border-emerald-500/40 bg-emerald-500/10 px-6 py-2.5 text-sm font-medium text-emerald-300 transition hover:bg-emerald-500/20"
+          className="inline-flex h-14 w-14 items-center justify-center rounded-full border border-emerald-500/40 bg-emerald-500/10 text-2xl text-emerald-300 transition hover:bg-emerald-500/20"
+          aria-label="Voltar ao início"
         >
-          Voltar ao início
+          ←
         </Link>
       </main>
     );
@@ -240,13 +248,16 @@ export function MenuView() {
 
   if (loadError) {
     return (
-      <main className="menu-page-bg min-h-screen px-4 py-16 text-center">
-        <p className="text-red-400/90">{loadError}</p>
+      <main className="menu-page-bg flex min-h-screen flex-col items-center justify-center gap-4 px-4 py-16 text-center">
+        <p className="max-w-sm text-sm text-red-400/90" role="alert">
+          {loadError}
+        </p>
         <Link
           href="/"
-          className="mt-6 inline-flex items-center justify-center rounded-full border border-emerald-500/40 bg-emerald-500/10 px-6 py-2.5 text-sm font-medium text-emerald-300 transition hover:bg-emerald-500/20"
+          className="inline-flex h-14 w-14 items-center justify-center rounded-full border border-emerald-500/40 bg-emerald-500/10 text-2xl text-emerald-300"
+          aria-label="Voltar ao início"
         >
-          Voltar ao início
+          ←
         </Link>
       </main>
     );
@@ -272,8 +283,8 @@ export function MenuView() {
               </div>
             ))}
           </div>
-          <p className="mt-8 text-center text-sm text-zinc-500">
-            A carregar o teu menu…
+          <p className="mt-8 text-center text-zinc-500" aria-live="polite">
+            …
           </p>
         </div>
       </main>
@@ -287,35 +298,23 @@ export function MenuView() {
           <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-500/20 text-3xl">
             ✓
           </div>
-          <p className="text-sm font-medium uppercase tracking-widest text-emerald-400/90">
-            Pedido registado
-          </p>
-          <h1 className="mt-2 text-2xl font-bold text-white text-balance">
-            Levanta no balcão com este código
-          </h1>
           <p
-            className="mt-6 font-mono text-5xl font-bold tracking-widest text-emerald-400"
+            className="mt-2 font-mono text-5xl font-bold tracking-widest text-emerald-400"
             aria-live="polite"
           >
             {orderResult.publicCode}
           </p>
-          <p className="mt-4 text-zinc-400">
-            Total:{" "}
-            <span className="font-semibold text-zinc-200">
-              {(orderResult.totalCents / 100).toFixed(2)} {orderResult.currency}
+          <p className="mt-4 text-lg font-semibold text-zinc-200 tabular-nums">
+            {(orderResult.totalCents / 100).toFixed(2)}{" "}
+            <span className="text-base font-medium text-zinc-400">
+              {orderResult.currency}
             </span>
           </p>
           <div className="mt-8 rounded-2xl border border-white/5 bg-black/20 px-4 py-3">
-            <p className="text-xs uppercase tracking-wider text-zinc-500">
-              Estado do pedido
-            </p>
-            <p className="mt-1 text-lg font-medium capitalize text-white">
-              {orderStatus ?? "a confirmar…"}
+            <p className="text-lg font-medium capitalize text-white">
+              {orderStatus ?? "…"}
             </p>
           </div>
-          <p className="mt-6 text-sm leading-relaxed text-zinc-500">
-            Avisamos no WhatsApp quando estiver pronto. Podes fechar esta página.
-          </p>
         </div>
       </main>
     );
@@ -326,15 +325,9 @@ export function MenuView() {
       <header className="sticky top-0 z-20 border-b border-white/5 bg-[#07090d]/80 backdrop-blur-xl">
         <div className="mx-auto flex max-w-lg items-center justify-between gap-3 px-4 py-4">
           <div className="min-w-0">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-emerald-400/80">
-              Menu
-            </p>
             <h1 className="truncate text-xl font-bold text-white">
               {menu.venue.name}
             </h1>
-            <p className="mt-0.5 text-sm text-zinc-500">
-              Toca em <span className="text-zinc-400">+</span> para adicionar
-            </p>
           </div>
           {cartItemCount > 0 && (
             <div className="flex shrink-0 items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1.5">
@@ -350,85 +343,67 @@ export function MenuView() {
       </header>
 
       <main className="mx-auto max-w-lg px-4 pt-6">
-        <div className="space-y-10">
-          {menu.categories.map((cat) => (
-            <section key={cat.id} className="scroll-mt-24">
-              <div className="mb-4 flex items-center gap-3">
-                <span className="h-px flex-1 bg-gradient-to-r from-transparent via-emerald-500/40 to-transparent" />
-                <h2 className="shrink-0 text-sm font-bold uppercase tracking-widest text-zinc-400">
-                  {cat.name}
-                </h2>
-                <span className="h-px flex-1 bg-gradient-to-r from-transparent via-emerald-500/40 to-transparent" />
-              </div>
-              <ul className="space-y-4">
-                {cat.items.map((item) => (
-                  <li key={item.id}>
-                    <button
-                      type="button"
-                      onClick={() => addItem(item)}
-                      className="group flex w-full items-stretch gap-0 overflow-hidden rounded-2xl border border-white/[0.06] bg-zinc-900/40 text-left shadow-lg shadow-black/20 transition hover:border-emerald-500/25 hover:bg-zinc-900/70 hover:shadow-emerald-900/10"
+        <ul className="space-y-4">
+          {flatItems.map((item) => (
+            <li key={item.id}>
+              <button
+                type="button"
+                onClick={() => addItem(item)}
+                aria-label={`${item.name}, ${(item.priceCents / 100).toFixed(2)} ${menu.venue.currency}`}
+                className="group flex w-full items-stretch gap-0 overflow-hidden rounded-2xl border border-white/[0.06] bg-zinc-900/40 text-left shadow-lg shadow-black/20 transition hover:border-emerald-500/25 hover:bg-zinc-900/70 hover:shadow-emerald-900/10"
+              >
+                <div className="relative h-32 w-32 shrink-0 sm:h-36 sm:w-36">
+                  {item.imageUrl ? (
+                    <Image
+                      src={item.imageUrl}
+                      alt=""
+                      fill
+                      sizes="(max-width: 640px) 128px, 144px"
+                      className="object-cover transition duration-300 group-hover:scale-105"
+                      unoptimized={menuImageUnoptimized(item.imageUrl)}
+                    />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-zinc-800 to-zinc-900 text-4xl">
+                      🍽️
+                    </div>
+                  )}
+                  <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-60" />
+                </div>
+                <div className="flex min-w-0 flex-1 flex-col justify-center px-4 py-3">
+                  <p className="font-semibold leading-snug text-white">{item.name}</p>
+                  <div className="mt-3 flex items-center justify-between gap-2">
+                    <p className="text-lg font-bold tabular-nums text-emerald-400">
+                      {(item.priceCents / 100).toFixed(2)}{" "}
+                      <span className="text-sm font-medium text-emerald-400/70">
+                        {menu.venue.currency}
+                      </span>
+                    </p>
+                    <span
+                      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-emerald-500 text-xl font-bold text-emerald-950 shadow-lg shadow-emerald-500/25 transition group-hover:bg-emerald-400 group-active:scale-95"
+                      aria-hidden
                     >
-                      <div className="relative h-32 w-32 shrink-0 sm:h-36 sm:w-36">
-                        {item.imageUrl ? (
-                          <Image
-                            src={item.imageUrl}
-                            alt={item.name}
-                            fill
-                            sizes="(max-width: 640px) 128px, 144px"
-                            className="object-cover transition duration-300 group-hover:scale-105"
-                            unoptimized={menuImageUnoptimized(item.imageUrl)}
-                          />
-                        ) : (
-                          <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-zinc-800 to-zinc-900 text-4xl">
-                            🍽️
-                          </div>
-                        )}
-                        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-60" />
-                      </div>
-                      <div className="flex min-w-0 flex-1 flex-col justify-center px-4 py-3">
-                        <p className="font-semibold leading-snug text-white">
-                          {item.name}
-                        </p>
-                        {item.description && (
-                          <p className="mt-1 line-clamp-2 text-sm leading-relaxed text-zinc-500">
-                            {item.description}
-                          </p>
-                        )}
-                        <div className="mt-3 flex items-center justify-between gap-2">
-                          <p className="text-lg font-bold tabular-nums text-emerald-400">
-                            {(item.priceCents / 100).toFixed(2)}{" "}
-                            <span className="text-sm font-medium text-emerald-400/70">
-                              {menu.venue.currency}
-                            </span>
-                          </p>
-                          <span
-                            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-emerald-500 text-xl font-bold text-emerald-950 shadow-lg shadow-emerald-500/25 transition group-hover:bg-emerald-400 group-active:scale-95"
-                            aria-hidden
-                          >
-                            +
-                          </span>
-                        </div>
-                      </div>
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            </section>
+                      +
+                    </span>
+                  </div>
+                </div>
+              </button>
+            </li>
           ))}
-        </div>
+        </ul>
       </main>
 
       <div className="pointer-events-none fixed inset-x-0 bottom-0 z-30 flex justify-center p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
         <div className="pointer-events-auto w-full max-w-lg rounded-t-3xl border border-white/10 border-b-0 bg-zinc-950/95 shadow-2xl shadow-black/50 backdrop-blur-2xl">
           <div className="mx-auto mt-2 h-1 w-10 rounded-full bg-zinc-700/80" />
           <div className="max-h-[min(50vh,22rem)] overflow-y-auto px-4 pb-2 pt-3">
-            <label className="mb-3 block text-xs font-medium uppercase tracking-wider text-zinc-500">
-              Notas ao balcão
+            <label className="mb-3 block">
+              <span className="sr-only">Nota ao balcão</span>
               <input
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
-                className="mt-1.5 w-full rounded-xl border border-zinc-700/80 bg-zinc-900/80 px-3 py-2.5 text-sm text-white placeholder:text-zinc-600 focus:border-emerald-500/50 focus:outline-none focus:ring-1 focus:ring-emerald-500/30"
-                placeholder="Ex.: sem cebola, copo com gelo…"
+                className="w-full rounded-xl border border-zinc-700/80 bg-zinc-900/80 px-3 py-2.5 text-sm text-white placeholder:text-zinc-600 focus:border-emerald-500/50 focus:outline-none focus:ring-1 focus:ring-emerald-500/30"
+                placeholder="⋯"
+                aria-label="Nota ao balcão"
               />
             </label>
             {Object.keys(cart).length > 0 && (
@@ -465,24 +440,20 @@ export function MenuView() {
               </ul>
             )}
             <div className="flex flex-wrap items-center justify-between gap-3 border-t border-white/5 pt-3">
-              <div>
-                <p className="text-xs uppercase tracking-wider text-zinc-500">
-                  Total
-                </p>
-                <p className="text-xl font-bold tabular-nums text-white">
-                  {(totals / 100).toFixed(2)}{" "}
-                  <span className="text-sm font-medium text-zinc-400">
-                    {menu.venue.currency}
-                  </span>
-                </p>
-              </div>
+              <p className="text-xl font-bold tabular-nums text-white">
+                {(totals / 100).toFixed(2)}{" "}
+                <span className="text-sm font-medium text-zinc-400">
+                  {menu.venue.currency}
+                </span>
+              </p>
               <button
                 type="button"
                 disabled={submitting || totals === 0}
                 onClick={() => void submitOrder()}
-                className="min-w-[10rem] rounded-2xl bg-gradient-to-r from-emerald-500 to-emerald-600 px-6 py-3.5 text-sm font-bold text-emerald-950 shadow-lg shadow-emerald-500/25 transition hover:from-emerald-400 hover:to-emerald-500 disabled:cursor-not-allowed disabled:opacity-40 disabled:shadow-none"
+                aria-label={submitting ? "A enviar" : "Enviar pedido"}
+                className="flex min-h-12 min-w-[3.5rem] items-center justify-center rounded-2xl bg-gradient-to-r from-emerald-500 to-emerald-600 px-6 text-lg font-bold text-emerald-950 shadow-lg shadow-emerald-500/25 transition hover:from-emerald-400 hover:to-emerald-500 disabled:cursor-not-allowed disabled:opacity-40 disabled:shadow-none"
               >
-                {submitting ? "A enviar…" : "Enviar pedido"}
+                {submitting ? "…" : "✓"}
               </button>
             </div>
             {submitError && (

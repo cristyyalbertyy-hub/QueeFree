@@ -26,13 +26,13 @@ function LoginForm() {
       });
       const data = (await res.json()) as { error?: string };
       if (!res.ok) {
-        setError(data.error ?? "Erro ao entrar");
+        setError(data.error ?? "Erro");
         return;
       }
       router.replace("/staff");
       router.refresh();
     } catch {
-      setError("Falha de rede.");
+      setError("Rede");
     } finally {
       setLoading(false);
     }
@@ -40,20 +40,9 @@ function LoginForm() {
 
   return (
     <main className="mx-auto flex min-h-screen max-w-sm flex-col justify-center gap-6 px-4 py-12">
-      <div>
-        <p className="text-sm uppercase tracking-widest text-zinc-500">
-          Área staff
-        </p>
-        <h1 className="mt-2 text-2xl font-semibold text-white">Entrar</h1>
-        <p className="mt-2 text-sm text-zinc-400">
-          Palavra-passe definida no servidor (<code className="text-zinc-300">STAFF_PASSWORD</code>).
-        </p>
-      </div>
-
       {configError && (
         <p className="rounded-lg border border-amber-900/50 bg-amber-950/40 px-3 py-2 text-sm text-amber-200">
-          Falta configurar <code>STAFF_JWT_SECRET</code> (e <code>STAFF_PASSWORD</code>) no ficheiro{" "}
-          <code>.env</code>.
+          Falta <code className="text-amber-100">.env</code> (staff). Vê instruções (?).
         </p>
       )}
 
@@ -61,15 +50,16 @@ function LoginForm() {
         onSubmit={onSubmit}
         className="flex flex-col gap-4 rounded-2xl border border-zinc-800 bg-zinc-900/50 p-6"
       >
-        <label className="flex flex-col gap-1 text-sm">
-          <span className="text-zinc-400">Palavra-passe</span>
+        <label className="flex flex-col gap-1">
+          <span className="sr-only">Palavra-passe</span>
           <input
             type="password"
             autoComplete="current-password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
-            className="rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2 text-white"
+            className="rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-3 text-white"
+            placeholder="••••"
           />
         </label>
 
@@ -82,15 +72,20 @@ function LoginForm() {
         <button
           type="submit"
           disabled={loading}
-          className="rounded-lg bg-emerald-600 px-4 py-3 font-medium text-white hover:bg-emerald-500 disabled:opacity-50"
+          className="rounded-lg bg-emerald-600 px-4 py-3 text-lg font-medium text-white hover:bg-emerald-500 disabled:opacity-50"
+          aria-label={loading ? "A entrar" : "Entrar"}
         >
-          {loading ? "A entrar…" : "Entrar"}
+          {loading ? "…" : "→"}
         </button>
       </form>
 
-      <p className="text-center text-sm text-zinc-500">
-        <Link href="/" className="underline hover:text-zinc-300">
-          Voltar ao início
+      <p className="text-center">
+        <Link
+          href="/"
+          className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-zinc-700 text-xl text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200"
+          aria-label="Entrada cliente"
+        >
+          ←
         </Link>
       </p>
     </main>
@@ -99,7 +94,13 @@ function LoginForm() {
 
 export default function StaffLoginPage() {
   return (
-    <Suspense fallback={<p className="p-8 text-center text-zinc-400">A carregar…</p>}>
+    <Suspense
+      fallback={
+        <p className="p-8 text-center text-zinc-400" aria-live="polite">
+          …
+        </p>
+      }
+    >
       <LoginForm />
     </Suspense>
   );
